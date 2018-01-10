@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Insight</title>
+  <!--  <link rel="stylesheet" href="css/style.css"> -->
+  <!--[if lt IE 9]>
+  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+  <script type=text/javascript src="{{url_for('static', filename='RGraph/librairies/RGraph.common.core.js') }}"></script>
+  <script type=text/javascript src="{{url_for('static', filename='RGraph/librairies/RGraph.common.effects.js') }}"></script>
+  <script type=text/javascript src="{{url_for('static', filename='RGraph/librairies/RGraph.fuel.js') }}"></script>
+  
+  <script type="text/javascript" charset="utf-8">
+  	$(document).ready(function(){
+ ///////////////////////////////////////////////////////
+ /// Les Gauges de la page ///
+ ///////////////////////////////////////////////////////
+        	var fuel1 = new RGraph.Fuel({
+            	id: 'fuel1',
+            	min:0,
+            	max: 1000,
+            	value: 0,
+            	options: {
+                	textAccessible: true
+            	}
+        	}).grow()
+        	var fuel2 = new RGraph.Fuel({
+            	id: 'fuel2',
+            	min:5000,
+            	max: 50000,
+            	value: 0,
+            	options: {
+                	textAccessible: true
+            	}
+        	}).grow()
+        	var fuel3 = new RGraph.Fuel({
+            	id: 'fuel3',
+            	min:0,
+            	max: 100,
+            	value: 0,
+            	options: {
+                	textAccessible: true
+            	}
+        	}).grow()
+///////////////////////////////////////////////////////////////////
+  		  		// Les Sockets du Navigateur...///
+///////////////////////////////////////////////////////////////////
+            var socket = io.connect();
+///////////////////////////////////////////////////////////////////
+            socket.on('connect', function() {
+                socket.emit('connexion', {data: 'Connected!'});
+            });
+///////////////////////////////////////////////////////////////////		
+            $('input.sync').on('change', function(event) {
+				var largeur = parseInt($('#Largeur').val())
+				var ent_axe = parseInt($('#EntAxe').val());
+				var angle = parseInt($('#Angle').val());
+				console.log(largeur);
+				console.log(ent_axe);
+				console.log(angle);
+				// Si envoie automatique des valeurs du formulaire.
+				// Le traitement au niveau serveur est + lourd car il faut récupérer des json dans un tableau : message[0]["value"] par exemple
+				//var formulaire=$("#formulaire").serializeArray();
+				//console.log(formulaire);
+				formulaire = {
+					Largeur : largeur,
+					EntAxe : ent_axe,
+					Angle : angle
+				};
+				console.log(JSON.stringify(formulaire))
+                //socket.emit('value changed', {who: $(this).attr('id'), data: $(this).val()});
+				socket.emit('value changed',formulaire);
+                return false;
+            });
+////////////////////////////////////////////////////////////////////			
+            socket.on('update value', function(msg) {
+				console.log("----------------------------");
+				console.log("Msg Updated Value : ")
+                console.log(msg);
+				console.log(msg.Resultat_Debit_Theorique);
+				console.log(msg.Resultat_Puissance_Utile);
+				console.log(msg.Resultat_Tension_Service);
+				console.log("----------------------------");
+				$("#resultat1").val(msg.Resultat_Debit_Theorique);
+				$("#resultat2").val(msg.Resultat_Puissance_Utile);
+				$("#resultat3").val(msg.Resultat_Tension_Service);
+				fuel1.value=msg.Resultat_Debit_Theorique;
+				fuel1.grow();
+				fuel2.value=msg.Resultat_Puissance_Utile;
+				fuel2.grow();
+				fuel3.value=msg.Resultat_Tension_Service;
+				fuel3.grow();						
+            });
+			
+  	});
+  </script>
+</head>
+
+<body>
+  ...
+  <p>Texte avant le formulaire</p>
+
+  <form id="formulaire" method="post" action="traitement.php">
+     <p>Texte à l'intérieur du formulaire</p>
+	 <p>
+	  <label>Largeur</label> :<input type="range" min="0" max="100" value="50" class="sync" id="Largeur" name="Largeur"><span id="largeur"></span>
+	 </p>
+	 <p>
+	 <label>EntrAxe</label> :<input type="range" min="0" max="100" value="50" class="sync" id="EntAxe" name="EntAxe"><span id="ent_axe"></span>
+	 </p>
+	 <p>
+	 <label>Angle</label> :<input type="range" min="4" max="30" value="10" class="sync" id="Angle" name="Angle"><span id="angle"></span>
+ 	 </p>
+  </form>
+-------------------------------------------------------------------
+ <p>Texte après le formulaire</p>
+ <p>
+ <label>Résultat Débit Théorique</label> : <input type="text" id="resultat1" />
+ </p>
+ <p>
+ <label>Résultat Puissance Utile</label> : <input type="text" id="resultat2" />
+ </p>
+ <p>
+ <label>Résultat Tension Service</label> : <input type="text" id="resultat3" />
+ </p>
+  ...
+<table>
+   <caption>Attention à ne pas trop tirer sur l'élastique...'</caption>
+   <tr>
+       <td align="center">RDT</td>
+       <td align="center">RPU</td>
+       <td align="center">RTS</td>
+   </tr>
+   <tr>
+       <td>
+		   <canvas id="fuel1" width="200" height="200">
+    		   [No canvas support]
+		   </canvas>
+	   </td>
+       <td>
+		   <canvas id="fuel2" width="200" height="200">
+			   [No canvas support]
+		   </canvas>
+	   </td>
+       <td>
+		   <canvas id="fuel3" width="200" height="200">
+	 		  [No canvas support]
+		  </canvas>
+	  </td>
+   </tr>
+</table>
+
+
+
+
+ <!-- fin du HTML.... -->
+ 
+<script type="application/x-javascript">
+	var slider1 = document.getElementById("Largeur");
+	var output1 = document.getElementById("largeur");
+	output1.innerHTML = slider1.value;
+	slider1.oninput = function() {
+	  output1.innerHTML = this.value;
+	  //console.log(slider1.value)
+	}
+	var slider2 = document.getElementById("EntAxe");
+	var output2 = document.getElementById("ent_axe");
+	output2.innerHTML = slider2.value;
+	slider2.oninput = function() {
+	  output2.innerHTML = this.value;
+	  //console.log(slider1.value)
+	}
+	var slider3 = document.getElementById("Angle");
+	var output3 = document.getElementById("angle");
+	output3.innerHTML = slider3.value;
+	slider3.oninput = function() {
+	  output3.innerHTML = this.value;
+	  //console.log(slider1.value)
+	}
+</script>
+</body>
