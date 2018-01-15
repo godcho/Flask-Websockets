@@ -21,7 +21,7 @@
         	var fuel1 = new RGraph.Fuel({
             	id: 'fuel1',
             	min:0,
-            	max: 1000,
+            	max: 200,
             	value: 0,
             	options: {
                 	textAccessible: true
@@ -29,8 +29,8 @@
         	}).grow()
         	var fuel2 = new RGraph.Fuel({
             	id: 'fuel2',
-            	min:5000,
-            	max: 50000,
+            	min:0,
+            	max: 300,
             	value: 0,
             	options: {
                 	textAccessible: true
@@ -39,7 +39,7 @@
         	var fuel3 = new RGraph.Fuel({
             	id: 'fuel3',
             	min:0,
-            	max: 100,
+            	max: 600,
             	value: 0,
             	options: {
                 	textAccessible: true
@@ -48,7 +48,7 @@
 ///////////////////////////////////////////////////////////////////
   		  		// Les Sockets du Navigateur...///
 ///////////////////////////////////////////////////////////////////
-            var socket = io.connect();
+            var socket = io.connect(location.protocol+'//' + document.domain + ':' + location.port );
 ///////////////////////////////////////////////////////////////////
             socket.on('connect', function() {
                 socket.emit('connexion', {data: 'Connected!'});
@@ -106,10 +106,10 @@
   <form id="formulaire" method="post" action="traitement.php">
      <p>Texte à l'intérieur du formulaire</p>
 	 <p>
-	  <label>Largeur</label> :<input type="range" min="0" max="100" value="50" class="sync" id="Largeur" name="Largeur"><span id="largeur"></span>
+	  <label>Largeur</label> :<input type="range" min="0" max="10" value="50" class="sync" id="Largeur" name="Largeur"><span id="largeur"></span>
 	 </p>
 	 <p>
-	 <label>EntrAxe</label> :<input type="range" min="0" max="100" value="50" class="sync" id="EntAxe" name="EntAxe"><span id="ent_axe"></span>
+	 <label>EntrAxe</label> :<input type="range" min="0" max="20" value="50" class="sync" id="EntAxe" name="EntAxe"><span id="ent_axe"></span>
 	 </p>
 	 <p>
 	 <label>Angle</label> :<input type="range" min="4" max="30" value="10" class="sync" id="Angle" name="Angle"><span id="angle"></span>
